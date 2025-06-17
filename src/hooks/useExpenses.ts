@@ -41,7 +41,7 @@ export const useExpenses = () => {
   const addExpense = (expense: Omit<Expense, 'id' | 'createdAt'>) => {
     const newExpense: Expense = {
       ...expense,
-      id: expense.id || Date.now().toString(),
+      id: Date.now().toString(),
       createdAt: new Date().toISOString()
     };
     setExpenses(prev => [...prev, newExpense]);
