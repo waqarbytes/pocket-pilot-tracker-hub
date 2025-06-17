@@ -8,8 +8,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar, DollarSign, FileText, Tag } from 'lucide-react';
 
-const ExpenseForm = ({ categories, onSubmit, onCancel, initialData }) => {
-  const [formData, setFormData] = useState({
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
+interface Expense {
+  id?: string;
+  title: string;
+  amount: number;
+  date: string;
+  categoryId: string;
+  description?: string;
+}
+
+interface ExpenseFormData {
+  title: string;
+  amount: string;
+  date: string;
+  categoryId: string;
+  description: string;
+}
+
+interface FormErrors {
+  title?: string;
+  amount?: string;
+  date?: string;
+  categoryId?: string;
+}
+
+interface ExpenseFormProps {
+  categories: Category[];
+  onSubmit: (expense: Expense) => void;
+  onCancel: () => void;
+  initialData?: Expense | null;
+}
+
+const ExpenseForm: React.FC<ExpenseFormProps> = ({ categories, onSubmit, onCancel, initialData }) => {
+  const [formData, setFormData] = useState<ExpenseFormData>({
     title: '',
     amount: '',
     date: '',
@@ -17,7 +54,7 @@ const ExpenseForm = ({ categories, onSubmit, onCancel, initialData }) => {
     description: ''
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     if (initialData) {
@@ -35,8 +72,8 @@ const ExpenseForm = ({ categories, onSubmit, onCancel, initialData }) => {
     }
   }, [initialData]);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
 
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
@@ -60,12 +97,12 @@ const ExpenseForm = ({ categories, onSubmit, onCancel, initialData }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
 
-    const expenseData = {
+    const expenseData: Expense = {
       ...formData,
       amount: parseFloat(formData.amount),
       id: initialData?.id || Date.now().toString()
@@ -74,10 +111,10 @@ const ExpenseForm = ({ categories, onSubmit, onCancel, initialData }) => {
     onSubmit(expenseData);
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof ExpenseFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
-    if (errors[field]) {
+    if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };

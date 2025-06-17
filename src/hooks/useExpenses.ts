@@ -3,8 +3,19 @@ import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'expense-tracker-expenses';
 
+interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  date: string;
+  categoryId: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const useExpenses = () => {
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
 
   // Load expenses from localStorage
   useEffect(() => {
@@ -27,8 +38,8 @@ export const useExpenses = () => {
     }
   }, [expenses]);
 
-  const addExpense = (expense) => {
-    const newExpense = {
+  const addExpense = (expense: Omit<Expense, 'id' | 'createdAt'>) => {
+    const newExpense: Expense = {
       ...expense,
       id: expense.id || Date.now().toString(),
       createdAt: new Date().toISOString()
@@ -36,7 +47,7 @@ export const useExpenses = () => {
     setExpenses(prev => [...prev, newExpense]);
   };
 
-  const updateExpense = (id, updatedExpense) => {
+  const updateExpense = (id: string, updatedExpense: Partial<Expense>) => {
     setExpenses(prev => 
       prev.map(expense => 
         expense.id === id 
@@ -46,11 +57,11 @@ export const useExpenses = () => {
     );
   };
 
-  const deleteExpense = (id) => {
+  const deleteExpense = (id: string) => {
     setExpenses(prev => prev.filter(expense => expense.id !== id));
   };
 
-  const exportData = (format) => {
+  const exportData = (format: 'csv' | 'json') => {
     if (format === 'csv') {
       const headers = ['Title', 'Amount', 'Date', 'Category', 'Description'];
       const csvContent = [

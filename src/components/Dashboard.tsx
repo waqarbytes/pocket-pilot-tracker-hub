@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Doughnut, Line } from 'react-chartjs-2';
@@ -27,19 +26,41 @@ ChartJS.register(
   ArcElement
 );
 
-const Dashboard = ({ expenses, categories }) => {
+interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  date: string;
+  categoryId: string;
+  description?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
+interface DashboardProps {
+  expenses: Expense[];
+  categories: Category[];
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ expenses, categories }) => {
   const stats = useMemo(() => {
     const currentMonth = new Date();
     const lastMonth = subMonths(currentMonth, 1);
     
     const currentMonthExpenses = expenses.filter(expense => {
       const expenseDate = new Date(expense.date);
-      return expenseDate >= startOfMonth(currentMonth) && expenseDate <= endOfMonth(currentMonth);
+      return expenseDate.getTime() >= startOfMonth(currentMonth).getTime() && 
+             expenseDate.getTime() <= endOfMonth(currentMonth).getTime();
     });
     
     const lastMonthExpenses = expenses.filter(expense => {
       const expenseDate = new Date(expense.date);
-      return expenseDate >= startOfMonth(lastMonth) && expenseDate <= endOfMonth(lastMonth);
+      return expenseDate.getTime() >= startOfMonth(lastMonth).getTime() && 
+             expenseDate.getTime() <= endOfMonth(lastMonth).getTime();
     });
 
     const totalThisMonth = currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -56,7 +77,7 @@ const Dashboard = ({ expenses, categories }) => {
   }, [expenses]);
 
   const categoryData = useMemo(() => {
-    const categoryTotals = {};
+    const categoryTotals: Record<string, number> = {};
     expenses.forEach(expense => {
       const category = categories.find(c => c.id === expense.categoryId);
       const categoryName = category ? category.name : 'Uncategorized';
@@ -115,7 +136,7 @@ const Dashboard = ({ expenses, categories }) => {
 
   const recentExpenses = useMemo(() => {
     return [...expenses]
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
   }, [expenses]);
 
@@ -124,7 +145,7 @@ const Dashboard = ({ expenses, categories }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom',
+        position: 'bottom' as const,
         labels: {
           padding: 20,
           font: {
@@ -150,7 +171,7 @@ const Dashboard = ({ expenses, categories }) => {
           color: 'rgba(0, 0, 0, 0.1)',
         },
         ticks: {
-          callback: (value) => `$${value.toFixed(0)}`
+          callback: (value: any) => `$${value.toFixed(0)}`
         }
       },
       x: {

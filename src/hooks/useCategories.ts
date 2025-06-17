@@ -3,7 +3,13 @@ import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'expense-tracker-categories';
 
-const DEFAULT_CATEGORIES = [
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
+const DEFAULT_CATEGORIES: Category[] = [
   { id: '1', name: 'Food & Dining', color: '#FF6384' },
   { id: '2', name: 'Transportation', color: '#36A2EB' },
   { id: '3', name: 'Shopping', color: '#FFCE56' },
@@ -15,7 +21,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export const useCategories = () => {
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
 
   // Load categories from localStorage
   useEffect(() => {
@@ -38,15 +44,15 @@ export const useCategories = () => {
     }
   }, [categories]);
 
-  const addCategory = (category) => {
-    const newCategory = {
+  const addCategory = (category: Omit<Category, 'id'> & { id?: string }) => {
+    const newCategory: Category = {
       ...category,
       id: category.id || Date.now().toString()
     };
     setCategories(prev => [...prev, newCategory]);
   };
 
-  const updateCategory = (id, updatedCategory) => {
+  const updateCategory = (id: string, updatedCategory: Partial<Category>) => {
     setCategories(prev => 
       prev.map(category => 
         category.id === id 
@@ -56,7 +62,7 @@ export const useCategories = () => {
     );
   };
 
-  const deleteCategory = (id) => {
+  const deleteCategory = (id: string) => {
     setCategories(prev => prev.filter(category => category.id !== id));
   };
 
